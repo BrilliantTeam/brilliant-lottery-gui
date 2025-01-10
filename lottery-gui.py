@@ -40,7 +40,6 @@ class LotteryApp:
         settings_frame = ttk.Frame(input_frame)
         settings_frame.pack(fill=tk.X, pady=10)
         
-        # 新增獎品名稱輸入欄位
         prize_name_frame = ttk.Frame(settings_frame)
         prize_name_frame.pack(fill=tk.X, pady=5)
         ttk.Label(prize_name_frame, text="獎品名稱：", width=10).pack(side=tk.LEFT)
