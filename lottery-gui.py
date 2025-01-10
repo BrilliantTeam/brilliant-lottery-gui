@@ -4,12 +4,13 @@ import random
 import requests
 from PIL import Image, ImageTk
 from io import BytesIO
+from datetime import datetime
 
 class LotteryApp:
     def __init__(self, root):
         self.root = root
         self.root.title("輝煌伺服器抽獎程式")
-        self.root.geometry("810x550")
+        self.root.geometry("810x580")
         self.root.resizable(False, False)
         
         try:
@@ -18,7 +19,7 @@ class LotteryApp:
             icon_photo = ImageTk.PhotoImage(icon_image)
             self.root.iconphoto(True, icon_photo)
         except Exception as e:
-            print(f"無法載入圖標：：{e}")
+            print(f"無法載入圖標：{e}")
         
         main_frame = ttk.Frame(root)
         main_frame.pack(padx=20, pady=20, fill=tk.BOTH, expand=True)
@@ -38,6 +39,13 @@ class LotteryApp:
         
         settings_frame = ttk.Frame(input_frame)
         settings_frame.pack(fill=tk.X, pady=10)
+        
+        # 新增獎品名稱輸入欄位
+        prize_name_frame = ttk.Frame(settings_frame)
+        prize_name_frame.pack(fill=tk.X, pady=5)
+        ttk.Label(prize_name_frame, text="獎品名稱：", width=10).pack(side=tk.LEFT)
+        self.prize_name = ttk.Entry(prize_name_frame)
+        self.prize_name.pack(side=tk.LEFT, fill=tk.X, expand=True)
         
         prize_frame = ttk.Frame(settings_frame)
         prize_frame.pack(fill=tk.X, pady=5)
@@ -95,6 +103,8 @@ class LotteryApp:
             messagebox.showerror("錯誤", "中獎人數不能大於參與者人數！")
             return
         
+        prize_name = self.prize_name.get().strip() or "空氣"
+        
         winners = random.sample(participants, winners_count)
         
         prizes_per_person = total_prizes // winners_count
@@ -103,22 +113,26 @@ class LotteryApp:
         self.result_text.config(state='normal')
         self.result_text.delete("1.0", tk.END)
         
-        result_text = "　　　　　　　　🎉 抽獎結果 🎉\n"
+        current_time = datetime.now().strftime("%Y-%m-%d  %H:%M:%S")
+        
+        result_text = f"　　　　　　　　🎉 抽獎結果 🎉\n"
+        result_text += f"　　　　　　{current_time}\n"
         result_text += "─" * 30 + "\n\n"
         for i, winner in enumerate(winners, 1):
             prizes = prizes_per_person + (1 if i <= remaining_prizes else 0)
             result_text += f"┌─ {winner}\n"
-            result_text += f"└─ 獲得 {prizes} 份獎品！\n\n"
+            result_text += f"└─ 獲得 {prizes} 份 {prize_name}！\n\n"
         
         result_text += "─" * 30 + "\n"
-        result_text += f"　　　　　　　　共 {len(winners)} 位中獎者\n"
-        result_text += f"　　　　　　　　總計 {total_prizes} 份獎品"
+        result_text += f"┌─ 共 {len(winners)} 位中獎者；總計 {total_prizes} 份\n"
+        result_text += f"└─ {prize_name}"
         
         self.result_text.insert("1.0", result_text)
         self.result_text.config(state='disabled')
 
     def clear_all(self):
         self.participants_text.delete("1.0", tk.END)
+        self.prize_name.delete(0, tk.END)
         self.total_prizes.delete(0, tk.END)
         self.winners_count.delete(0, tk.END)
         self.result_text.config(state='normal')
